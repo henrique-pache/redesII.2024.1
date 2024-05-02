@@ -21,32 +21,34 @@ class Subscriber:
     def subscribe_to_topics(self):
         subscribe_message = {
             "type": "subscribe",
-            "subscriber": self.client_socket.getsockname()[1],  # Use port number as subscriber ID
+            "subscriber": f"{self.host}:{self.port}",  # Use address and port as unique identifier
             "topics": self.topics
         }
-        print(self.topics)
         self.client_socket.sendall(json.dumps(subscribe_message).encode("utf-8"))
 
     def receive_messages(self):
         while True:
             data = self.client_socket.recv(1024)
             if not data:
+                print("Connection closed by Broker.")
                 break
             message = data.decode("utf-8")
-            print(message)
+            try:
+                print("Received message:", message)
+            except json.JSONDecodeError:
+                print("Invalid JSON received")
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Subscriber for Broker")
     parser.add_argument("-t", "--topics", nargs="+", help="Topics to subscribe to", required=True)
+    parser.add_argument("-p", "--port", type=int, help="Port to connect to the Broker", required=True)
+    parser.add_argument("-bh", "--broker_host", type=str, help="Broker host address", required=True)
+    parser.add_argument("-bp", "--broker_port", type=int, help="Broker port", required=True)
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_arguments()
-    HOST = "localhost"
-    PORT = 8888  # Port where the Broker is running
-    topics = args.topics
-    subscriber = Subscriber(HOST, PORT, topics)
+    HOST = args.broker_host
+    PORT = args.broker_port
+    subscriber = Subscriber(HOST, PORT, args.topics)
     subscriber.connect_to_broker()
-
-
-# python3 broker_sub.py -t topic1 topic2 topic3

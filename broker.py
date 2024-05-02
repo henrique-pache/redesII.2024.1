@@ -6,7 +6,7 @@ class Broker:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.topics = {}  # Dicionário para armazenar os tópicos e seus subscribers
+        self.subscribers = {}  # Dicionário para armazenar os subscribers e os tópicos aos quais estão inscritos
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(5)
@@ -24,24 +24,27 @@ class Broker:
                 print(message)
                 message = json.loads(message)
                 if message.get("type") == "subscribe":
+                    subscriber_id = message.get("subscriber")
                     topics = message.get("topics")
-                    subscriber = message.get("subscriber")
                     for topic in topics:
-                        if topic in self.topics:
-                            self.topics[topic].add(subscriber)
+                        if topic in self.subscribers:
+                            self.subscribers[topic].append((subscriber_id, client_socket))  # Armazenar o socket do Subscriber junto com o ID
                         else:
-                            self.topics[topic] = {subscriber}
-                        print(f"Subscriber {subscriber} subscribed to topic {topic}")
+                            self.subscribers[topic] = [(subscriber_id, client_socket)]
+                        print(f"Subscriber {subscriber_id} subscribed to topic {topic}")
                 elif message.get("type") == "publish":
-                    self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    print(self.topics)
                     topic = message.get("topic")
                     data = message.get("data")
-                    if topic in self.topics:
-                        for subscriber in self.topics[topic]:
-                            self.client_socket.connect((self.host, self.port))
-                            self.client_socket.sendall(json.dumps({'data': data}).encode("utf-8"))
-                            print(f"Message published to {topic}: {data}")
+                    if topic in self.subscribers:
+                        for subscriber_id, subscriber_socket in self.subscribers[topic]:
+                            try:
+                                subscriber_socket.sendall(json.dumps({'data': data}).encode("utf-8"))
+                                print(f"Message published to {topic}: {data}")
+                            except ConnectionResetError:
+                                print(f"Failed to send message to subscriber {subscriber_id} for topic {topic}. Removing from subscription list.")
+                                self.subscribers[topic].remove((subscriber_id, subscriber_socket))
+                                if not self.subscribers[topic]:
+                                    del self.subscribers[topic]  # Remover o tópico se não houver mais subscribers inscritos
                     else:
                         print(f"No subscribers for topic {topic}")
             except json.JSONDecodeError:
@@ -59,7 +62,3 @@ if __name__ == "__main__":
     PORT = 8888
     broker = Broker(HOST, PORT)
     broker.start()
-
-# python3 broker.py
-
-# kill $(lsof -t -i:8888)
