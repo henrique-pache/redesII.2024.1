@@ -3,9 +3,11 @@ import argparse
 import json
 
 class Publisher:
-    def __init__(self, host, port):
+    def __init__(self, host, port, topic, message):
         self.host = host
         self.port = port
+        self.topic = topic
+        self.message = message
 
     def connect_to_broker(self):
         try:
@@ -17,15 +19,14 @@ class Publisher:
             print("Connection to Broker refused. Make sure the Broker is running.")
 
     def publish_message(self):
-        topic = input("Enter topic: ")
-        message = input("Enter message: ")
         publish_message = {
             "type": "publish",
-            "topic": topic,
-            "data": message
+            "topic": self.topic,
+            "data": self.message
         }
         self.client_socket.sendall(json.dumps(publish_message).encode("utf-8"))
         print("Message published successfully")
+        self.client_socket.close()
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Publisher for Broker")
@@ -37,8 +38,5 @@ if __name__ == "__main__":
     args = parse_arguments()
     HOST = "localhost"
     PORT = 8888  # Port where the Broker is running
-    publisher = Publisher(HOST, PORT)
+    publisher = Publisher(HOST, PORT, args.topic, args.message)
     publisher.connect_to_broker()
-
-
-# python3 broker_pub.py -t topic_name -m "your message here"

@@ -34,7 +34,10 @@ class Subscriber:
                 break
             message = data.decode("utf-8")
             try:
-                print("Received message:", message)
+                message = json.loads(message)
+                topic = message.get('topic')
+                data = message.get('data')
+                print(f"Received message on topic '{topic}': {data}")
             except json.JSONDecodeError:
                 print("Invalid JSON received")
 

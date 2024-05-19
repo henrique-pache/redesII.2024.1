@@ -38,7 +38,7 @@ class Broker:
                     if topic in self.subscribers:
                         for subscriber_id, subscriber_socket in self.subscribers[topic]:
                             try:
-                                subscriber_socket.sendall(json.dumps({'data': data}).encode("utf-8"))
+                                subscriber_socket.sendall(json.dumps({'topic': topic, 'data': data}).encode("utf-8"))
                                 print(f"Message published to {topic}: {data}")
                             except ConnectionResetError:
                                 print(f"Failed to send message to subscriber {subscriber_id} for topic {topic}. Removing from subscription list.")
