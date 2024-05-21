@@ -13,10 +13,10 @@ class Publisher:
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client_socket.connect((self.host, self.port))
-            print(f"Connected to Broker at {self.host}:{self.port}")
+            print(f"Conectado ao Broker em {self.host}:{self.port}")
             self.publish_message()
         except ConnectionRefusedError:
-            print("Connection to Broker refused. Make sure the Broker is running.")
+            print("Conexão ao Broker recusada.")
 
     def publish_message(self):
         publish_message = {
@@ -25,7 +25,7 @@ class Publisher:
             "data": self.message
         }
         self.client_socket.sendall(json.dumps(publish_message).encode("utf-8"))
-        print("Message published successfully")
+        print("Mensagem publicada com sucesso")
         self.client_socket.close()
 
 def parse_arguments():
@@ -37,6 +37,11 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
     HOST = "localhost"
-    PORT = 8888  # Port where the Broker is running
+    PORT = 8888  # Port do Broker
     publisher = Publisher(HOST, PORT, args.topic, args.message)
     publisher.connect_to_broker()
+
+
+
+# para publicar uma mensagem a um topico
+# python broker_pub.py --topic topico --message mensagem

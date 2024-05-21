@@ -38,6 +38,8 @@ class Broker:
                     if topic in self.subscribers:
                         for subscriber_id, subscriber_socket in self.subscribers[topic]:
                             try:
+                                import pdb; pdb.set_trace()
+                                
                                 subscriber_socket.sendall(json.dumps({'topic': topic, 'data': data}).encode("utf-8"))
                                 print(f"Message published to {topic}: {data}")
                             except ConnectionResetError:
@@ -62,3 +64,7 @@ if __name__ == "__main__":
     PORT = 8888
     broker = Broker(HOST, PORT)
     broker.start()
+
+
+# para startar o broker
+# python broker.py
