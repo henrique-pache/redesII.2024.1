@@ -37,7 +37,7 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
     HOST = "localhost"
-    PORT = 8888  # Port do Broker
+    PORT = 8888  # Porta do Broker
     publisher = Publisher(HOST, PORT, args.topic, args.message)
     publisher.connect_to_broker()
 

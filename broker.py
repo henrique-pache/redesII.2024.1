@@ -38,7 +38,6 @@ class Broker:
                     if topic in self.subscribers:
                         for subscriber_id, subscriber_socket in self.subscribers[topic]:
                             try:
-                                import pdb; pdb.set_trace()
                                 
                                 subscriber_socket.sendall(json.dumps({'topic': topic, 'data': data}).encode("utf-8"))
                                 print(f"Message published to {topic}: {data}")
