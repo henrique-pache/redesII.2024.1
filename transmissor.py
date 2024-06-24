@@ -3,7 +3,7 @@ from pydub import AudioSegment
 import time
 
 # Configurações do arquivo de áudio
-FILENAME = 'abbey_road.mp3'  # Substitua pelo caminho do seu arquivo de áudio MP3
+FILENAME = 'rock.mp3'  # Substitua pelo caminho do seu arquivo de áudio MP3
 
 # Configurações do socket UDP
 UDP_IP = "127.0.0.1"  # Endereço IP do receptor
