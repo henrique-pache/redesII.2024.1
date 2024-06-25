@@ -70,3 +70,6 @@ if __name__ == "__main__":
     client = AudioClient(genre, client_address)
     client.publish_request("localhost", 9090)
     client.start_receiving()
+
+
+# python audio_client.py -t ROCK -m 192.168.1.20:9090
